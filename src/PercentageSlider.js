@@ -1,14 +1,8 @@
 import { Box, Text } from "@chakra-ui/react";
 
 function GradientBox({ value }) {
-  if (value < 5) {
-    value = 5;
-  }
-  if (value > 95) {
-    value = 95;
-  }
-  const percentage = `${value}%`;
-  const backgroundGradient = `linear-gradient(to right, #990000 0%, white 50%, #009900 100%)`;
+  const percentage = `${value > 95 ? 95 : value}%`;
+  const backgroundGradient = `linear-gradient(to left, #990000 0%, white 50%, #009900 100%)`;
 
   return (
     <Box

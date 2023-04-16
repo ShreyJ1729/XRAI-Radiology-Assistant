@@ -54,6 +54,7 @@ function App() {
   const [inp, setInp] = useState(null);
   const [indexForGrad, setIndexForGrad] = useState(0);
   const [rep, setRep] = useState("");
+  const SIZE_OF_IMAGE = 600;
 
   let global_img_input = null;
 
@@ -107,10 +108,15 @@ function App() {
       );
 
       // if cache cannot be loaded then load from the internet
+      console.log(
+        "Loading model by fetching from " + model_path + "/model.json ..."
+      );
       model = await tf.loadGraphModel(model_path + "/model.json", cachedfetch);
+      console.log("Done!");
     }
     // save model for next time
     try {
+      console.log("Saving model to cache " + model_cache_path);
       await model.save(model_cache_path);
     } catch (err) {
       console.log("Failed to save model to cache " + err.message);
@@ -638,8 +644,8 @@ function App() {
 
     // set canvas width and height to image
     let imageCanvas = document.getElementsByClassName("inputimage_highres")[0];
-    canvas.style.width = 700 + "px";
-    canvas.style.height = 700 + "px";
+    canvas.style.width = SIZE_OF_IMAGE + "px";
+    canvas.style.height = SIZE_OF_IMAGE + "px";
 
     // now set the offsets
     canvas.style.position = "absolute";
@@ -757,7 +763,7 @@ function App() {
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer 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`,
+          Authorization: `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
         },
       }
     );
@@ -779,6 +785,9 @@ function App() {
       <Navbar navItems={NAV_ITEMS} loading={loading} />
       <Hero />
 
+      <Spacer h={10} />
+      <Spacer h={10} />
+      <Spacer h={10} />
       <Spacer h={10} />
       <Spacer h={10} />
       <Spacer h={10} />
@@ -873,8 +882,8 @@ function App() {
                   mr={0}
                   ml="20px"
                   style={{
-                    width: "700px",
-                    height: "700px",
+                    width: SIZE_OF_IMAGE + "px",
+                    height: SIZE_OF_IMAGE + "px",
                   }}
                 ></canvas>
                 <canvas
