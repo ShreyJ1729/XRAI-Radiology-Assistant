@@ -787,16 +787,16 @@ function App() {
                     {[
                       "Atelectasis",
                       "Consolidation",
-                      "Edema",
+                      "Pulmonary Edema",
                       "Emphysema",
                       "Fibrosis",
-                      "Effusion",
+                      "Pleural Effusion",
                       "Pleural Thickening",
                       "Cardiomegaly",
-                      "Mass",
-                      "Hernia",
-                      "Lung Opacity",
-                      "Enlarged Cardiomedia.",
+                      "Mass (tumor)",
+                      "Pulmonary Hernia",
+                      "Pulmonary opacity",
+                      "Enlarged Cardiomedia",
                     ].map((disease, idx) => (
                       <Tr key={disease} my={10} py={10}>
                         <Td my={0} py={4}>
