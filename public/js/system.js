@@ -35,7 +35,7 @@ function display_size_data_full() {
   }
 }
 
-prog = "\\";
+let prog = "\\";
 
 function display_size_data() {
   if (performance === undefined) {
@@ -65,7 +65,7 @@ function display_size_data() {
   } else {
     prog = "\\";
   }
-  status("Loading model... " + total + "/" + (8 + 16) + "  " + prog);
+  console.log("Loading model... " + total + "/" + (8 + 16) + "  " + prog);
 }
 
 let SYSTEM = {};
