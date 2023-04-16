@@ -6,6 +6,7 @@ import { NAV_ITEMS } from "./constants";
 import React, { useEffect, useState } from "react";
 import PercentageSlider from "./PercentageSlider";
 import Hero from "./Hero";
+
 import {
   Box,
   Button,
@@ -21,8 +22,32 @@ import {
   Text,
   Tr,
   VStack,
+  Textarea,
+  Select,
 } from "@chakra-ui/react";
-import { Model } from "./Model";
+
+import axios from "axios";
+
+const fetchData = async (disease, input) => {
+  const response = await axios.post(
+    "https://api.openai.com/v1/completions",
+    {
+      prompt: `Given this disease ${disease}, answer this question: "${input}"`,
+      model: "text-davinci-002",
+      max_tokens: 50,
+      n: 1,
+      stop: ".",
+    },
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer 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`,
+      },
+    }
+  );
+
+  return response.data.choices[0].text;
+};
 
 function App() {
   const [loading, setLoading] = useState(false);
@@ -30,6 +55,34 @@ function App() {
   const [aechesternet, setAechesternet] = useState(null);
   const [chesternet, setChesternet] = useState(null);
   let thispred = {};
+  const [image, setImage] = useState(null);
+  const [inp, setInp] = useState(null);
+  const [rep, setRep] = useState("");
+
+  const options = [
+    "Atelectasis",
+    "Consolidation",
+    "Edema",
+    "Emphysema",
+    "Fibrosis",
+    "Effusion",
+    "Pleural Thickening",
+    "Cardiomegaly",
+    "Mass",
+    "Hernia",
+    "Lung Opacity",
+    "Enlarged Cardiomedia.",
+  ]; // options for the Select component
+  const [selectedOption, setSelectedOption] = useState(options[0]); // initial state is the first option
+
+  const handleSelectChange = (event) => {
+    setSelectedOption(event.target.value); // update state when a new option is selected
+  };
+
+  function handleInpChange(event) {
+    setInp(event.target.value);
+    console.log(inp);
+  }
 
   let realfetch = window.fetch;
   const cachedfetch = function (arg) {
@@ -380,6 +433,11 @@ function App() {
     }
   };
 
+  async function handleClick() {
+    let re2 = await fetchData(selectedOption, inp);
+    setRep(re2);
+  }
+
   return (
     <>
       <Navbar navItems={NAV_ITEMS} loading={loading} />
@@ -498,8 +556,27 @@ function App() {
             </HStack>
           </Box>
         </Box>
+        <Box
+          borderWidth="1px"
+          borderRadius="md"
+          p={10}
+          position="relative"
+          my="-40px"
+        >
+          <Select value={selectedOption} onChange={handleSelectChange}>
+            {options.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </Select>
+          <Input value={inp} onChange={handleInpChange} />
+          <Button colorScheme="blue" onClick={handleClick}>
+            Submit Question
+          </Button>
+          <Textarea value={rep} />
+        </Box>
       </Box>
-      );
     </>
   );
 }
