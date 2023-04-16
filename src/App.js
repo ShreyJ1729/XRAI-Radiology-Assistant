@@ -8,6 +8,11 @@ import PercentageSlider from "./PercentageSlider";
 import Hero from "./Hero";
 import { FaExternalLinkAlt } from "react-icons/fa";
 
+import { jsPDF } from "jspdf";
+import "jspdf-autotable";
+
+import logo from "./logo-black.png";
+
 import {
   Box,
   Button,
@@ -351,7 +356,8 @@ function App() {
 
       setScores(probs);
 
-      showProbResults(); //, logits, recScore)
+      const filename = imgElement.src.split("/").pop();
+      showProbResults(filename); //, logits, recScore)
       setLoading(false);
       setEnd(Date.now());
 
@@ -403,10 +409,132 @@ function App() {
     return topClassesAndProbs;
   }
 
-  function showProbResults() {
-    let classes = thispred.classes;
-    console.log(classes);
+  const fetchDiag = async (tableString) => {
+    const response = await axios.post(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are a helpful medical education bot that thoroughly analyzes conditions and probabilities and returns information about the patient.",
+          },
+          {
+            role: "user",
+            content: `Given this table of conditions and probabilities ${tableString}, give me a diagnosis and rationale. Also give me what the next steps are for the patient."`,
+          },
+        ],
+        model: "gpt-3.5-turbo",
+        max_tokens: 1000,
+        n: 1,
+        // stop: "",
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer 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`,
+        },
+      }
+    );
+
+    return response.data.choices[0].message.content;
+  };
+
+  function addNewlines(res) {
+    const paragraphs = res.split('\n');
+    let result = '';
+
+    paragraphs.forEach((paragraph, i) => {
+      const words = paragraph.split(/\s+/);
+      let lineLength = 0;
+
+      words.forEach(word => {
+        if (lineLength + word.length > 120) {
+          result += '\n';
+          lineLength = 0;
+        }
+        result += word + ' ';
+        lineLength += word.length + 1;
+      });
+
+      if (i < paragraphs.length - 1) {
+        result += '\n';
+      }
+    });
+
+    return result.trim();
   }
+
+  async function showProbResults(filename) {
+    let classes = thispred.classes;
+    
+    const doc = new jsPDF();
+    
+    doc.setFontSize(20);
+    doc.setFont("helvetica", "bold");
+    
+    doc.setFillColor(255, 140, 105);
+    doc.rect(0, 0, 210, 18, "F");
+
+    doc.addImage(logo, "PNG", 155, 2, 45, 15);
+    
+    doc.setTextColor(255, 255, 255);
+    doc.text("Take Home Diagnosis Report", 15, 12);
+
+
+    const datestring =
+      new Date().toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      })
+    
+    const timestring =
+      new Date().toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "numeric",
+        hour12: true,
+      })
+      
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 0);
+    doc.setFont("helvetica", "normal");
+
+    doc.text("Date: " + datestring, 10, 25);
+    doc.text("Time: " + timestring, 10, 30);
+    doc.text("Filename: " + filename, 10, 35);
+    
+    doc.text("\n\n\n\n\n\n\n\n", 10, 20);
+    
+    let table = [];
+    let tableString = "";
+    for (let i = 0; i < classes.length; i++) {
+      if (classes[i].className !== "None" && classes[i].className !== "") {
+        table.push([classes[i].className, (classes[i].probability * 100).toFixed(2) + "%"]);
+        tableString += classes[i].className + ": " + classes[i].probability * 100 + "%\n";
+      }
+    }
+    
+    doc.autoTable({
+      startY: 45,
+      head: [["Diagnosis", "Probability"]],
+      body: table,
+    });
+
+    let res = await fetchDiag(tableString);
+    if (res !== null && res === "") {
+      res = "Diagnosis in progress!";
+    }
+
+    res = addNewlines(res)
+    doc.text(res, 10, 160);
+  
+    doc.setFontSize(7);
+    doc.text("© Copyright 2023 XRAI. All rights reserved.\nAll your data is stored privately and encrypted.", 200, 285, { align: "right" });
+
+    doc.save(Date.now() + "_diagnosis.pdf");
+  }
+
 
   function showProbError(predictionContainer, score) {
     alert(
