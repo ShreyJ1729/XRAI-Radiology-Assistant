@@ -542,7 +542,7 @@ function App() {
                           {disease}
                         </Td>
                         <Td my={0} py={4}>
-                          {scores[disease]}
+                          {scores[disease]}%
                         </Td>
                         <Td my={0} py={0}>
                           <PercentageSlider value={scores[disease]} />

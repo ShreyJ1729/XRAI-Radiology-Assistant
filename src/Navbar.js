@@ -45,7 +45,7 @@ export default function Navbar({ navItems, stepNumber, loading }) {
         w="100%"
         bg={useColorModeValue("#f7f7f7", "black")}
         color={useColorModeValue("gray.900", "white")}
-        minH={"60px"}
+        minH={"100px"}
         py={{ base: 2 }}
         px={{ base: 4 }}
         borderBottom={1}
@@ -77,7 +77,9 @@ export default function Navbar({ navItems, stepNumber, loading }) {
           <Text
             textAlign={useBreakpointValue({ base: "center", md: "left" })}
             fontFamily={"heading"}
+            ml={8}
             fontWeight="bold"
+            fontSize={"2xl"}
             color={useColorModeValue("black", "white")}
           >
             <a href="/">XRAI: Your AI Radiology Assistant</a>
@@ -100,8 +102,7 @@ export default function Navbar({ navItems, stepNumber, loading }) {
           spacing={6}
         >
           <IconButton
-            size={"md"}
-            fontSize={"lg"}
+            fontSize={30}
             aria-label={`Switch to ${
               colorMode === "light" ? "dark" : "light"
             } mode`}
@@ -139,7 +140,7 @@ export default function Navbar({ navItems, stepNumber, loading }) {
         size="xs"
         colorScheme="pink"
         position="fixed"
-        top="60px"
+        top="100px"
         w="100%"
         sx={{
           "& > div:first-child": {
@@ -167,14 +168,14 @@ const DesktopNav = ({
   navItems,
 }) => {
   return (
-    <Stack direction={"row"} spacing={4}>
+    <Stack direction={"row"} spacing={10}>
       {navItems.map((navItem) => (
         <Box key={navItem.label}>
           <Popover trigger={"hover"} placement={"bottom-start"}>
             <PopoverTrigger>
               <Text
                 p={2}
-                fontSize={"sm"}
+                fontSize={"lg"}
                 fontWeight={500}
                 color={linkColor}
                 _hover={{
@@ -185,7 +186,7 @@ const DesktopNav = ({
                 <a href={navItem.href ?? "#"}>{navItem.label}</a>
               </Text>
             </PopoverTrigger>
-
+            {/* 
             {navItem.children && (
               <PopoverContent
                 boxShadow={"xl"}
@@ -200,7 +201,7 @@ const DesktopNav = ({
                   ))}
                 </Stack>
               </PopoverContent>
-            )}
+            )} */}
           </Popover>
         </Box>
       ))}
