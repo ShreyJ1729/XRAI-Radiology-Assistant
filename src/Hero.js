@@ -58,6 +58,13 @@ export default function Hero() {
             rounded={"full"}
             color={"white"}
             _hover={{ bg: "gray.100", color: "black" }}
+            onClick={() => {
+              window.open(
+                "https://github.com/ShreyJ1729/XRAI-Radiology-Assistant",
+                "_blank"
+              );
+            }}
+
           >
             Learn More
           </Button>
@@ -65,6 +72,12 @@ export default function Hero() {
             bg={"transparent"}
             rounded={"full"}
             _hover={{ bg: "blue.400" }}
+            onClick={() => {
+              window.open(
+                "https://devpost.com/software/xrai",
+                "_blank"
+              );
+            }}
           >
             Contact Us
           </Button>
