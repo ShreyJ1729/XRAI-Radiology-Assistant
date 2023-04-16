@@ -49,6 +49,7 @@ function App() {
   const [inp, setInp] = useState(null);
   const [indexForGrad, setIndexForGrad] = useState(0);
   const [rep, setRep] = useState("");
+  const SIZE_OF_IMAGE = 600;
 
   let global_img_input = null;
 
@@ -509,8 +510,8 @@ function App() {
 
     // set canvas width and height to image
     let imageCanvas = document.getElementsByClassName("inputimage_highres")[0];
-    canvas.style.width = 700 + "px";
-    canvas.style.height = 700 + "px";
+    canvas.style.width = SIZE_OF_IMAGE + "px";
+    canvas.style.height = SIZE_OF_IMAGE + "px";
 
     // now set the offsets
     canvas.style.position = "absolute";
@@ -744,8 +745,8 @@ function App() {
                   mr={0}
                   ml="20px"
                   style={{
-                    width: "700px",
-                    height: "700px",
+                    width: SIZE_OF_IMAGE + "px",
+                    height: SIZE_OF_IMAGE + "px",
                   }}
                 ></canvas>
                 <canvas
