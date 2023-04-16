@@ -47,7 +47,7 @@ export default function Navbar({ navItems, stepNumber, loading }) {
         w="100%"
         bg={useColorModeValue("#f7f7f7", "black")}
         color={useColorModeValue("gray.900", "white")}
-        minH={"100px"}
+        minH={"60px"}
         py={{ base: 2 }}
         px={{ base: 4 }}
         borderBottom={1}
@@ -87,9 +87,9 @@ export default function Navbar({ navItems, stepNumber, loading }) {
           >
             <a href="/">
               {colorMode === "dark" ? (
-                <Image src="logo-black.png" height="60px" alt="logo" />
+                <Image src="logo-black.png" height="50px" alt="logo" />
               ) : (
-                <Image src="logo-white.png" height="60px" alt="logo" />
+                <Image src="logo-white.png" height="50px" alt="logo" />
               )}
             </a>
           </Text>
@@ -149,7 +149,7 @@ export default function Navbar({ navItems, stepNumber, loading }) {
         size="xs"
         colorScheme="pink"
         position="fixed"
-        top="100px"
+        top="65px"
         w="100%"
         sx={{
           "& > div:first-child": {

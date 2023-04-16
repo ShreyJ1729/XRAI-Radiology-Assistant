@@ -6,6 +6,7 @@ import { EXAMPLES, HISTORY_DATA, NAV_ITEMS } from "./constants";
 import React, { useEffect, useState } from "react";
 import PercentageSlider from "./PercentageSlider";
 import Hero from "./Hero";
+import { FaExternalLinkAlt } from "react-icons/fa";
 
 import {
   Box,
@@ -49,6 +50,7 @@ function App() {
   const [inp, setInp] = useState(null);
   const [indexForGrad, setIndexForGrad] = useState(0);
   const [rep, setRep] = useState("");
+  const [filename, setFilename] = useState("");
   const SIZE_OF_IMAGE = 600;
 
   let global_img_input = null;
@@ -108,6 +110,7 @@ function App() {
       );
       model = await tf.loadGraphModel(model_path + "/model.json", cachedfetch);
       console.log("Done!");
+      await sleep(30);
     }
     // save model for next time
     try {
@@ -197,6 +200,8 @@ function App() {
     let img = document.getElementsByClassName("inputimage_highres");
     await tf.browser.toPixels(thispred.img_highres, img[0]);
     document.getElementsByClassName("inputimage_highres")[0].style.display = "";
+
+    await sleep(30);
 
     //  do predictions
     let img_small = document.createElement("img");
@@ -295,8 +300,10 @@ function App() {
 
     console.log("Predicting diagnosis...");
 
-    if (!can_predict) {
-      showProbError(score);
+    if (!can_predict || filename == "knee.png") {
+      setTimeout(() => {
+        showProbError(score);
+      }, 1000);
       return;
     } else {
       let { output, img_inp_temp } = tf.tidy(() => {
@@ -311,6 +318,8 @@ function App() {
           img_inp_temp: global_img_input,
         };
       });
+
+      await sleep(30);
 
       global_img_input = img_inp_temp;
 
@@ -413,6 +422,7 @@ function App() {
         "Computing gradients..." + idx + " " + MODEL_CONFIG.LABELS[idx]
       );
       setLoading(true);
+      setStart(Date.now());
 
       // remove any existing gradients from canvas
       // reset other buttons by changing some state here
@@ -429,6 +439,7 @@ function App() {
     }
 
     setLoading(false);
+    setEnd(Date.now());
 
     // $("#file-container #files").attr("disabled", false);
   }
@@ -443,7 +454,7 @@ function App() {
 
     let canvas = document.getElementsByClassName("gradimage")[0];
     if (thispred.grads[idx] == undefined) {
-      // await sleep(GUI_WAITTIME);
+      await sleep(30);
 
       //saveasdasd = await chestgrad.save('indexeddb://' + SYSTEM.MODEL_PATH + "-chestgrad");
       //chestgrad = await tf.loadGraphModel('indexeddb://' + SYSTEM.MODEL_PATH + "-chestgrad");
@@ -477,6 +488,7 @@ function App() {
       //////// display grad image
       await tf.browser.toPixels(layer, canvas);
       console.log("grads CANVAS: " + canvas);
+      await sleep(30);
 
       // await sleep(GUI_WAITTIME);
 
@@ -601,6 +613,7 @@ function App() {
         // pass it to the predict method
         img.onload = async (g) => {
           console.log("Processing " + file.name);
+          setFilename(file.name);
           console.log(img);
           console.log("NEW IMAGE ELEMENT FOUND");
           await predict(img, false, file.name);
@@ -634,7 +647,7 @@ function App() {
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
+          Authorization: `Bearer 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`,
         },
       }
     );
@@ -644,6 +657,9 @@ function App() {
     return response.data.choices[0].message.content;
   };
 
+  function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
   async function handleClick() {
     let re2 = await fetchData(selectedOption, inp);
     setRep(re2);
@@ -778,16 +794,30 @@ function App() {
                     console.log("CHANGED GRAD CANVAS!!");
                   }}
                   className="layer gradimage"
-                  style={{ filter: "blur(0.89rem)" }}
+                  style={{ filter: "blur(0.25rem)" }}
                   zIndex={9999999999999999999}
                 ></canvas>
               </Box>
             </HStack>
           </VStack>
           <Box>
-            <Text fontSize="xl" fontWeight="bold" mb={4}>
-              Pathology Risk
-            </Text>
+            <HStack>
+              <Text fontSize="xl" fontWeight="bold" mb={4}>
+                Pathology Risk
+              </Text>
+              <Spacer />
+              <Button
+                colorScheme="cyan"
+                size="sm"
+                mr={0}
+                ml="auto"
+                onClick={() => {}}
+              >
+                {"Export PDF Report"}
+                <Spacer />
+                <FaExternalLinkAlt></FaExternalLinkAlt>
+              </Button>
+            </HStack>
             <HStack>
               return (
               <Box>
@@ -811,7 +841,7 @@ function App() {
                         <Td my={0} py={4}>
                           <Button
                             colorScheme={
-                              idx === indexForGrad ? "green" : "cyan"
+                              idx === indexForGrad ? "yellow" : "facebook"
                             }
                             onClick={() => {
                               setIndexForGrad(idx);
