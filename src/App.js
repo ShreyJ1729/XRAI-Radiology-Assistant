@@ -103,10 +103,15 @@ function App() {
       );
 
       // if cache cannot be loaded then load from the internet
+      console.log(
+        "Loading model by fetching from " + model_path + "/model.json ..."
+      );
       model = await tf.loadGraphModel(model_path + "/model.json", cachedfetch);
+      console.log("Done!");
     }
     // save model for next time
     try {
+      console.log("Saving model to cache " + model_cache_path);
       await model.save(model_cache_path);
     } catch (err) {
       console.log("Failed to save model to cache " + err.message);
