@@ -1,70 +1,17 @@
-# Getting Started with Create React App
+# XRAI: A prototypical personal assistant for diagnosing lung conditions from x-rays conditions
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Motivation
 
-## Available Scripts
+Chest X-rays play a critical role in diagnosing thoracic diseases such as pneumonia, lung cancer, and other lung disorders. The interpretation of X-rays requires significant training and expertise, which is often limited in many healthcare settings. Moreover, the interpretation of X-rays can also be time-consuming and may cause delays in treatment. Thus, the development of an accurate and efficient system for the automatic interpretation of chest X-rays could significantly improve the quality and speed of medical care.
 
-In the project directory, you can run:
+## Technical Details
 
-### `npm start`
+XRAI is a prototype system that utilizes deep learning algorithms to classify and localize thoracic diseases in chest X-ray images. Specifically, we use a Pytorch implementation of CheXNet, a 121-layer convolutional neural network that can detect pneumonia in chest X-rays with a performance exceeding that of radiologists.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+XRAI takes a chest X-ray image as input and outputs the probability of each thoracic disease, along with a likelihood map of pathologies. The model is trained on the ChestX-ray14 dataset, which contains over 100,000 frontal view X-ray images with 14 diseases, including pneumonia, emphysema, lung opacity, and cardiomegaly. The trained model is imported into an Electron app, providing a user-friendly interface for healthcare professionals to input X-ray images and receive disease classification results.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Impact and Social Good
 
-### `npm test`
+XRAI has the potential to significantly impact healthcare by improving the accuracy and speed of chest X-ray interpretation. The automatic classification of thoracic diseases can reduce the time and effort required for radiologists to interpret X-rays, allowing them to focus on more critical cases. Moreover, XRAI could help healthcare providers in areas with limited access to radiologists or healthcare infrastructure, improving access to healthcare services for remote and underserved communities.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Furthermore, XRAI could reduce healthcare costs associated with manual interpretation of chest X-rays by automating the process. This would lead to faster diagnosis and treatment, potentially reducing hospital stays and preventing unnecessary medical procedures. XRAI could also be used in epidemiological studies to study the prevalence of thoracic diseases in different populations, further contributing to the advancement of medical research.

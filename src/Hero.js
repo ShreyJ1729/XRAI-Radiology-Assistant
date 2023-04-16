@@ -33,7 +33,7 @@ export default function Hero() {
         <br />{" "}
         <Text fontWeight={700} lineHeight={1.2} fontSize={40}>
           {" "}
-          XRAI: A prototypical personal assistant for diagnosing lung conditoins
+          XRAI: A prototypical personal assistant for diagnosing lung conditions
           from x-rays conditions
         </Text>{" "}
         <Text fontSize={25}>
