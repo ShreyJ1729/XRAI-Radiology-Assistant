@@ -8,7 +8,7 @@ function GradientBox({ value }) {
     value = 95;
   }
   const percentage = `${value}%`;
-  const backgroundGradient = `linear-gradient(to right, red 0%, white 50%, green 100%)`;
+  const backgroundGradient = `linear-gradient(to right, #990000 0%, white 50%, #009900 100%)`;
 
   return (
     <Box
@@ -25,12 +25,11 @@ function GradientBox({ value }) {
         transform="translate(-50%, -50%)"
         fontWeight="bold"
         fontSize="md"
-        color={"black"}
+        color={"white"}
         border={"3px solid black"}
         borderRadius={"100%"}
       >
-        {/* font awesome x icon */}
-        &#10006;
+        {/* font awesome x icon */}X
       </Text>
       <Text
         position="absolute"

@@ -3,6 +3,7 @@ import {
   Flex,
   Heading,
   Img,
+  Spacer,
   Stack,
   Text,
   useBreakpointValue,
@@ -19,7 +20,6 @@ export default function Hero() {
       backgroundSize={"cover"}
       backgroundPosition={"center center"}
     >
-      {" "}
       <Stack
         w="90%"
         textAlign={{ base: "center", md: "left" }}
@@ -30,41 +30,46 @@ export default function Hero() {
         <br />
         <br />
         <br />
-        <br />{" "}
+        <br />
         <Text fontWeight={700} lineHeight={1.2} fontSize={40}>
-          {" "}
-          XRAI: A prototypical personal assistant for diagnosing lung conditions
-          from x-rays conditions
-        </Text>{" "}
+          XRAI: Your Personal Radiologist Assistant
+        </Text>
         <Text fontSize={25}>
-          {" "}
-          We locally preprocess and inference user uploaded chest xray images
-          for a variety of diseases and provide a through breakdown of pathology
-          including stratified risk level, and class activation mapping.
+          XRAI locally preprocesses and inferences user uploaded chest x-ray
+          images for diseases such as Pulmonary Edema & Cystic Fibrosis,
+          providing a thorough breakdown of pathology including stratified risk
+          level, class activation (attention) mapping, and an LLM chatbot for
+          further questions and learning.
+          <br />
+          <br />
+          XRAI can be used by a variety of audiences, ranging from overworked
+          radiologists who want to corroborate their diagnosis, patients who
+          want to learn more about their diseases, and medical students who are
+          in training and want to supplement their education.
+          <br />
           <br />
           Try uploading an images to start. Or you can use one of the examples
           below.
-        </Text>{" "}
+        </Text>
+
         <Stack direction={"row"}>
-          {" "}
           <Button
             bg={"black"}
             rounded={"full"}
             color={"white"}
             _hover={{ bg: "gray.100", color: "black" }}
           >
-            {" "}
-            Learn More{" "}
-          </Button>{" "}
+            Learn More
+          </Button>
           <Button
             bg={"transparent"}
             rounded={"full"}
             _hover={{ bg: "blue.400" }}
           >
-            Contact Us{" "}
-          </Button>{" "}
-        </Stack>{" "}
-      </Stack>{" "}
+            Contact Us
+          </Button>
+        </Stack>
+      </Stack>
     </Flex>
   );
 }

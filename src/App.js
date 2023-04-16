@@ -42,12 +42,15 @@ function App() {
   const [scores, setScores] = useState({});
   const [aechesternet, setAechesternet] = useState(null);
   const [chesternet, setChesternet] = useState(null);
-  let thispred = {};
+  let thispred = { grads: [] };
   const [start, setStart] = useState(0.0);
   const [time, setTime] = useState(0.0);
   const [end, setEnd] = useState(0.0);
   const [inp, setInp] = useState(null);
+  const [indexForGrad, setIndexForGrad] = useState(0);
   const [rep, setRep] = useState("");
+
+  let global_img_input = null;
 
   const options = [
     "Atelectasis",
@@ -65,6 +68,7 @@ function App() {
   ]; // options for the Select component
   const [selectedOption, setSelectedOption] = useState(options[0]); // initial state is the first option
   const [chatloading, setChatloading] = useState(false);
+  let [canvasImg, setCanvasImg] = useState(<></>);
 
   useEffect(() => {
     setTime(end - start);
@@ -165,10 +169,14 @@ function App() {
       MODEL_CONFIG.IMAGE_SIZE
     );
 
-    thispred.img_input = thispred.img_resized
+    global_img_input = thispred.img_resized
       .mul(2)
       .sub(1)
       .mul(tf.scalar(MODEL_CONFIG.IMAGE_SCALE));
+    console.log("RIGHT AFTER INIT");
+    console.log("global_img_input" + global_img_input);
+
+    window.IMG_INPUT = global_img_input.clone();
   }
 
   const predict = async (imgElement, isDemo, filename) => {
@@ -176,9 +184,8 @@ function App() {
     setStart(Date.now());
     console.log(Date.now());
     //   prepare input image
-    console.log("In predict");
-    console.log("here is the image element:", imgElement);
     prepare_image(imgElement);
+    console.log("RIGHT AFTER PREPARE_IMAGE EXITS", global_img_input);
 
     // show the input image
     let img = document.getElementsByClassName("inputimage_highres");
@@ -193,7 +200,7 @@ function App() {
 
     console.log("image source: " + img_small.src);
 
-    let { recInput, recErr, rec } = tf.tidy(() => {
+    let { img_input_temp, recInput, recErr, rec } = tf.tidy(() => {
       console.log("In tf.tidy");
       let img = tf.browser.fromPixels(img_small);
       img = img.toFloat();
@@ -207,8 +214,17 @@ function App() {
 
       const recErr = aebatched.sub(rec).abs();
 
-      return { recInput: aebatched, recErr: recErr, rec: rec };
+      return {
+        recInput: aebatched,
+        recErr: recErr,
+        rec: rec,
+        img_input_temp: global_img_input,
+      };
     });
+
+    global_img_input = img_input_temp;
+
+    console.log("SANITY CHECK", global_img_input);
 
     let recScore = recErr.mean().dataSync();
     console.log("recScore" + recScore);
@@ -241,6 +257,7 @@ function App() {
       channels: 4,
       canvas: canvas,
     };
+    console.log("ONE MORE SANITY CHECK", global_img_input);
 
     // https://github.com/darosh/image-ssim-js
     let ssim = ImageSSIM.compare(a, b, 8, 0.01, 0.03, 8);
@@ -276,15 +293,20 @@ function App() {
       showProbError(score);
       return;
     } else {
-      let output = tf.tidy(() => {
-        const batched = thispred.img_input.reshape([
+      let { output, img_inp_temp } = tf.tidy(() => {
+        const batched = global_img_input.reshape([
           1,
           1,
           MODEL_CONFIG.IMAGE_SIZE,
           MODEL_CONFIG.IMAGE_SIZE,
         ]);
-        return chesternet.execute(batched, [MODEL_CONFIG.OUTPUT_NODE]);
+        return {
+          output: chesternet.execute(batched, [MODEL_CONFIG.OUTPUT_NODE]),
+          img_inp_temp: global_img_input,
+        };
       });
+
+      global_img_input = img_inp_temp;
 
       //   await sleep(GUI_WAITTIME);
 
@@ -317,6 +339,8 @@ function App() {
       showProbResults(); //, logits, recScore)
       setLoading(false);
       setEnd(Date.now());
+
+      console.log("LAST SANITY CHECK", global_img_input);
 
       // thispred.find(".predviz .loading").hide();
       //   thispred.find(".loading").hide();
@@ -375,6 +399,145 @@ function App() {
         score +
         "). It could be that your image is not cropped correctly or it was aquired using a protocal that is not in our training data. "
     );
+  }
+
+  async function computeGrads(idx) {
+    try {
+      console.log(
+        "Computing gradients..." + idx + " " + MODEL_CONFIG.LABELS[idx]
+      );
+      setLoading(true);
+
+      // remove any existing gradients from canvas
+      // reset other buttons by changing some state here
+
+      const startTime = performance.now();
+      console.log("BEFORE REAL GRADS it's" + window.IMG_INPUT);
+      await computeGrads_real(thispred, idx, window.IMG_INPUT);
+
+      const totalTime = performance.now() - startTime;
+      console.log(`Done with compute grads in ${Math.floor(totalTime)}ms`);
+    } catch (err) {
+      console.log("Error! " + err.message);
+      console.log(err);
+    }
+
+    setLoading(false);
+
+    // $("#file-container #files").attr("disabled", false);
+  }
+
+  async function computeGrads_real(thispred, idx, img_inp_parameter) {
+    // hide previous gradimage
+    document.getElementsByClassName("gradimage")[0].style.display = "none";
+
+    //cache computation
+
+    let local = img_inp_parameter;
+
+    let canvas = document.getElementsByClassName("gradimage")[0];
+    if (thispred.grads[idx] == undefined) {
+      // await sleep(GUI_WAITTIME);
+
+      //saveasdasd = await chestgrad.save('indexeddb://' + SYSTEM.MODEL_PATH + "-chestgrad");
+      //chestgrad = await tf.loadGraphModel('indexeddb://' + SYSTEM.MODEL_PATH + "-chestgrad");
+
+      let { layer, img_inp_temp } = tf.tidy(() => {
+        let chestgrad = tf.grad((x) =>
+          chesternet.predict(x).reshape([-1]).gather(idx)
+        );
+
+        console.log("INSIDE GRAD");
+        console.log(local);
+
+        const batched = local.reshape([
+          1,
+          1,
+          MODEL_CONFIG.IMAGE_SIZE,
+          MODEL_CONFIG.IMAGE_SIZE,
+        ]);
+
+        const grad = chestgrad(batched);
+
+        const layer = grad.mean(0).abs().max(0);
+        return {
+          layer: layer.div(layer.max()),
+          img_inp_temp: local,
+        };
+      });
+
+      global_img_input = img_inp_temp;
+
+      //////// display grad image
+      await tf.browser.toPixels(layer, canvas);
+      console.log("grads CANVAS: " + canvas);
+
+      // await sleep(GUI_WAITTIME);
+
+      let ctx = canvas.getContext("2d");
+      let d = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      makeColor(d.data);
+      makeTransparent(d.data);
+
+      thispred.grads[idx] = d;
+      console.log(d);
+    }
+
+    let d = thispred.grads[idx];
+
+    let ctx = canvas.getContext("2d");
+    ctx.putImageData(d, 0, 0);
+    console.log(ctx);
+    document.getElementsByClassName("gradimage")[0].style.display = "block";
+    // thispred.find(".gradimage").show();
+
+    // thispred.find(".viewbox .loading").hide();
+    //thispred.find(".gradimagebox").show()
+    // thispred
+    // .find(".desc")
+    console.log("SHowing Predictive regions for " + MODEL_CONFIG.LABELS[idx]);
+
+    // print out the canvas data
+
+    const width = canvas.width;
+    const height = canvas.height;
+    // Get the RGB data for the entire canvas
+    const imageData = ctx.getImageData(0, 0, width, height);
+    const pixelData = imageData.data;
+    console.log("0000000000");
+    console.log("widht: " + width + " height: " + height);
+
+    // set canvas width and height to image
+    let imageCanvas = document.getElementsByClassName("inputimage_highres")[0];
+    canvas.style.width = 700 + "px";
+    canvas.style.height = 700 + "px";
+
+    // now set the offsets
+    canvas.style.position = "absolute";
+    canvas.style.display = "block";
+    canvas.style.top = imageCanvas.offsetTop + "px";
+    canvas.style.left = imageCanvas.offsetLeft + "px";
+
+    console.log("imageCanvas.offsetTop: " + imageCanvas.offsetTop);
+    console.log("imageCanvas.offsetLeft: " + imageCanvas.offsetLeft);
+    console.log("imageCanvas.width: " + imageCanvas.style.width);
+    console.log("imageCanvas.height: " + imageCanvas.style.height);
+
+    console.log("canvas.offsetTop: " + canvas.offsetTop);
+    console.log("canvas.offsetLeft: " + canvas.offsetLeft);
+    console.log("canvas.width: " + canvas.style.width);
+    console.log("canvas.height: " + canvas.style.height);
+
+    // // Print out the RGB data for each pixel
+    // for (let i = 0; i < pixelData.length; i += 4) {
+    //   const red = pixelData[i];
+    //   const green = pixelData[i + 1];
+    //   const blue = pixelData[i + 2];
+    //   const alpha = pixelData[i + 3];
+    //   console.log(
+    //     `Pixel ${i / 4} - R:${red}, G:${green}, B:${blue}, A:${alpha}`
+    //   );
+    // }
   }
 
   async function run_demo() {
@@ -458,9 +621,9 @@ function App() {
           },
         ],
         model: "gpt-3.5-turbo",
-        max_tokens: 100,
+        max_tokens: 1000,
         n: 1,
-        stop: ".",
+        // stop: "",
       },
       {
         headers: {
@@ -486,21 +649,14 @@ function App() {
     <>
       <Navbar navItems={NAV_ITEMS} loading={loading} />
       <Hero />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      {/* <iframe
-        title="test"
-        src="https://mlmed.org/tools/xray/"
-        width="100%"
-        height="500"
-        // turn off scrolling
-        // scrolling="no"
-      >
-        Browser not compatible.
-      </iframe> */}
+
+      <Spacer h={10} />
+      <Spacer h={10} />
+      <Spacer h={10} />
+      <Spacer h={10} />
+      <Spacer h={10} />
+      <Spacer h={10} />
+      <Spacer h={10} />
 
       <Box pt={10} ml="15%" mr="15%" w="70%">
         <Wrap direction={["column", "row"]} spacing={4}>
@@ -543,8 +699,20 @@ function App() {
           <VStack>
             <HStack mb={4}>
               {/* <Button>Invert Colors</Button> */}
-              <Button>View Gradient Class Activation Map</Button>
-              <Button>Reset</Button>
+              {/* <Button
+                onClick={() => {
+                  console.log("FROM THE BUTTON it's + ", global_img_input);
+                  computeGrads(7);
+                }}
+              >
+                View Gradient Class Activation Map
+              </Button> */}
+              {/* <Button
+                onClick={() => {
+                }}
+              >
+                Reset
+              </Button> */}
             </HStack>
             <Text>
               {loading ? (
@@ -553,38 +721,59 @@ function App() {
                 <>Done in {Math.trunc(time)} milliseconds</>
               )}
             </Text>
-            <Box className="viewbox">
-              {loading && (
-                <Spinner
-                  className="layer loading"
-                  position={"absolute"}
-                  left="30%"
-                  top="50%"
-                  size={"xl"}
-                />
-              )}
-              <canvas className="layer inputimage_highres baselayer"></canvas>
-              <canvas
-                className="layer inputimage"
-                style={{ display: "none" }}
-              ></canvas>
-              <canvas
-                className="layer inputimage_rec"
-                style={{ display: "none" }}
-              ></canvas>
-              <canvas
-                className="layer recimage"
-                style={{ display: "none" }}
-              ></canvas>
-              <canvas
-                className="layer oodimage"
-                style={{ display: "none" }}
-              ></canvas>
-              <canvas
-                className="layer gradimage"
-                style={{ filter: "blur(0.89rem)" }}
-              ></canvas>
-            </Box>
+            <HStack>
+              <Box
+                className="viewbox"
+                ml={5}
+                mr={0}
+                textAlign={"center"}
+                justifyContent={"center"}
+                alignItems={"center"}
+              >
+                {loading && (
+                  <Spinner
+                    className="layer loading"
+                    position={"absolute"}
+                    left="30%"
+                    top="50%"
+                    size={"xl"}
+                  />
+                )}
+                <canvas
+                  className="layer inputimage_highres baselayer"
+                  mr={0}
+                  ml="20px"
+                  style={{
+                    width: "700px",
+                    height: "700px",
+                  }}
+                ></canvas>
+                <canvas
+                  className="layer inputimage"
+                  style={{ display: "none", zIndex: 10 }}
+                ></canvas>
+                <canvas
+                  className="layer inputimage_rec"
+                  style={{ display: "none" }}
+                ></canvas>
+                <canvas
+                  className="layer recimage"
+                  style={{ display: "none" }}
+                ></canvas>
+                <canvas
+                  className="layer oodimage"
+                  style={{ display: "none" }}
+                ></canvas>
+                <canvas
+                  onChange={() => {
+                    console.log("CHANGED GRAD CANVAS!!");
+                  }}
+                  className="layer gradimage"
+                  style={{ filter: "blur(0.89rem)" }}
+                  zIndex={9999999999999999999}
+                ></canvas>
+              </Box>
+            </HStack>
           </VStack>
           <Box>
             <Text fontSize="xl" fontWeight="bold" mb={4}>
@@ -608,10 +797,20 @@ function App() {
                       "Hernia",
                       "Lung Opacity",
                       "Enlarged Cardiomedia.",
-                    ].map((disease) => (
+                    ].map((disease, idx) => (
                       <Tr key={disease} my={10} py={10}>
                         <Td my={0} py={4}>
-                          {disease}
+                          <Button
+                            colorScheme={
+                              idx === indexForGrad ? "green" : "cyan"
+                            }
+                            onClick={() => {
+                              setIndexForGrad(idx);
+                              computeGrads(idx);
+                            }}
+                          >
+                            {disease}
+                          </Button>
                         </Td>
                         <Td my={0} py={4}>
                           {scores[disease]}%
@@ -626,40 +825,45 @@ function App() {
               </Box>
               );
             </HStack>
-            <Box borderWidth="1px" borderRadius="md" p={1} my={10} mx={4}>
-              <Input
-                value={inp}
-                size={"lg"}
-                onChange={handleInpChange}
-                placeholder="Enter your question here..."
-              />
-              <HStack>
-                <Select
-                  value={selectedOption}
-                  onChange={handleSelectChange}
-                  width="50%"
-                >
-                  {options.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </Select>
-                <Button
-                  colorScheme="blue"
-                  my={3}
-                  p={3}
-                  w="50%"
-                  onClick={handleClick}
-                >
-                  {chatloading ? <Spinner /> : <>Submit Question</>}
-                </Button>
-              </HStack>
-              <Textarea value={rep} rows={10} contentEditable={false} />
-            </Box>
           </Box>
         </Box>
-        <Box ml="10%" w="80%" my="-100px">
+        <Box borderWidth="1px" borderRadius="md" p={1} my={10} mx={4}>
+          <Input
+            value={inp}
+            size={"lg"}
+            onChange={handleInpChange}
+            placeholder="Enter your question here, ex. What are some key symptoms of Atelactasis and how is it diagnosed?"
+          />
+          <HStack>
+            <Select
+              value={selectedOption}
+              onChange={handleSelectChange}
+              width="50%"
+            >
+              {options.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </Select>
+            <Button
+              colorScheme="blue"
+              my={3}
+              p={3}
+              w="50%"
+              onClick={handleClick}
+            >
+              {chatloading ? <Spinner /> : <>Submit Question</>}
+            </Button>
+          </HStack>
+          <Textarea
+            value={rep}
+            rows={10}
+            contentEditable={false}
+            placeholder="Your answer will appear here..."
+          />
+        </Box>
+        <Box ml="10%" w="80%" my="0px">
           <Text fontSize="2xl" fontWeight="bold" mb={4}>
             Evaluation History
           </Text>
