@@ -276,7 +276,7 @@ const MobileNavItem = ({
 
   return (
     <Stack spacing={4} onClick={children && onToggle}>
-      <a href={href ?? "#"}>
+      <a href={href ?? "#"} target="blank">
         <Flex
           py={2}
           justify={"space-between"}

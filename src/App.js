@@ -2,7 +2,7 @@ import * as tf from "@tensorflow/tfjs";
 import { jet } from "./colormaps";
 import ImageSSIM from "image-ssim";
 import Navbar from "./Navbar";
-import { NAV_ITEMS } from "./constants";
+import { HISTORY_DATA, NAV_ITEMS } from "./constants";
 import React, { useEffect, useState } from "react";
 import PercentageSlider from "./PercentageSlider";
 import Hero from "./Hero";
@@ -24,30 +24,11 @@ import {
   VStack,
   Textarea,
   Select,
+  Thead,
+  Th,
 } from "@chakra-ui/react";
 
 import axios from "axios";
-
-const fetchData = async (disease, input) => {
-  const response = await axios.post(
-    "https://api.openai.com/v1/completions",
-    {
-      prompt: `Given this disease ${disease}, answer this question: "${input}"`,
-      model: "text-davinci-002",
-      max_tokens: 50,
-      n: 1,
-      stop: ".",
-    },
-    {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer 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`,
-      },
-    }
-  );
-
-  return response.data.choices[0].text;
-};
 
 function App() {
   const [loading, setLoading] = useState(false);
@@ -74,6 +55,7 @@ function App() {
     "Enlarged Cardiomedia.",
   ]; // options for the Select component
   const [selectedOption, setSelectedOption] = useState(options[0]); // initial state is the first option
+  const [chatloading, setChatloading] = useState(false);
 
   const handleSelectChange = (event) => {
     setSelectedOption(event.target.value); // update state when a new option is selected
@@ -433,9 +415,45 @@ function App() {
     }
   };
 
+  const fetchData = async (disease, input) => {
+    setChatloading(true);
+    const response = await axios.post(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are a helpful medical education bot that thoroughly answers user questions about different medical diseases and conditions relating to the lungs.",
+          },
+          {
+            role: "user",
+            content: `Given this disease ${disease}, answer this question: "${input}"`,
+          },
+        ],
+        model: "gpt-3.5-turbo",
+        max_tokens: 100,
+        n: 1,
+        stop: ".",
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer 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`,
+        },
+      }
+    );
+
+    console.log(response);
+
+    return response.data.choices[0].message.content;
+  };
+
   async function handleClick() {
     let re2 = await fetchData(selectedOption, inp);
     setRep(re2);
+    console.log(re2);
+    setChatloading(false);
   }
 
   return (
@@ -502,16 +520,6 @@ function App() {
                 className="layer gradimage"
                 style={{ filter: "blur(0.89rem)" }}
               ></canvas>
-              {/* <center
-                className="layer loading"
-                style={{ display: "none", marginTop: "5%", width: "100%" }}
-              >
-                <img
-                  style={{ width: "400px" }}
-                  alt="Loading..."
-                  src="res/loading1.gif"
-                />
-              </center> */}
             </Box>
           </VStack>
           <Box>
@@ -554,27 +562,62 @@ function App() {
               </Box>
               );
             </HStack>
+            <Box borderWidth="1px" borderRadius="md" p={1} my={10} mx={4}>
+              <Input
+                value={inp}
+                size={"lg"}
+                onChange={handleInpChange}
+                placeholder="Enter your question here..."
+              />
+              <HStack>
+                <Select
+                  value={selectedOption}
+                  onChange={handleSelectChange}
+                  width="50%"
+                >
+                  {options.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </Select>
+                <Button
+                  colorScheme="blue"
+                  my={3}
+                  p={3}
+                  w="50%"
+                  onClick={handleClick}
+                >
+                  {chatloading ? <Spinner /> : <>Submit Question</>}
+                </Button>
+              </HStack>
+              <Textarea value={rep} rows={10} contentEditable={false} />
+            </Box>
           </Box>
-        </Box>
-        <Box
-          borderWidth="1px"
-          borderRadius="md"
-          p={10}
-          position="relative"
-          my="-40px"
-        >
-          <Select value={selectedOption} onChange={handleSelectChange}>
-            {options.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </Select>
-          <Input value={inp} onChange={handleInpChange} />
-          <Button colorScheme="blue" onClick={handleClick}>
-            Submit Question
-          </Button>
-          <Textarea value={rep} />
+          <Box ml="25%" w="full" my="-100px">
+            <Table>
+              <Thead>
+                <Tr>
+                  <Th>File Name</Th>
+                  <Th>Timestamp</Th>
+                  <Th>Process Time</Th>
+                  <Th>Likely</Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                {HISTORY_DATA.map((row) => (
+                  <Tr key={row.id}>
+                    <Td>{row.fileName}</Td>
+                    <Td>{row.timestamp}</Td>
+                    <Td>{row.processTime}</Td>
+                    <Td>{row.likely}</Td>
+                  </Tr>
+                ))}
+              </Tbody>
+            </Table>
+          </Box>
+          <br />
+          <br />
         </Box>
       </Box>
     </>
