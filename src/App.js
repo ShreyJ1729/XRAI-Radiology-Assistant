@@ -502,7 +502,7 @@ function App() {
     for (let i = 0; i < classes.length; i++) {
       if (classes[i].className !== "None" && classes[i].className !== "") {
         table.push([classes[i].className, (classes[i].probability * 100).toFixed(2) + "%"]);
-        tableString += classes[i].className + ": " + classes[i].probability * 100 + "%\n";
+        tableString += classes[i].className + ": " + (classes[i].probability * 100).toFixed(2) + "%\n";
       }
     }
     
