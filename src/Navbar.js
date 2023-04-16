@@ -16,6 +16,7 @@ import {
   Text,
   Center,
   Progress,
+  Image,
 } from "@chakra-ui/react";
 import {
   HamburgerIcon,
@@ -41,6 +42,7 @@ export default function Navbar({ navItems, stepNumber, loading }) {
   return (
     <>
       <Flex
+        transition={"all .3s ease"}
         position="fixed"
         w="100%"
         bg={useColorModeValue("#f7f7f7", "black")}
@@ -75,6 +77,7 @@ export default function Navbar({ navItems, stepNumber, loading }) {
           alignItems="center"
         >
           <Text
+            transition={"all .3s ease"}
             textAlign={useBreakpointValue({ base: "center", md: "left" })}
             fontFamily={"heading"}
             ml={8}
@@ -82,7 +85,13 @@ export default function Navbar({ navItems, stepNumber, loading }) {
             fontSize={"2xl"}
             color={useColorModeValue("black", "white")}
           >
-            <a href="/">XRAI: Your AI Radiology Assistant</a>
+            <a href="/">
+              {colorMode === "dark" ? (
+                <Image src="logo-black.png" height="60px" alt="logo" />
+              ) : (
+                <Image src="logo-white.png" height="60px" alt="logo" />
+              )}
+            </a>
           </Text>
 
           <Flex ml={10}>

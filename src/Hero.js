@@ -2,6 +2,7 @@ import {
   Button,
   Flex,
   Heading,
+  Img,
   Stack,
   Text,
   useBreakpointValue,
@@ -30,17 +31,19 @@ export default function Hero() {
         <br />
         <br />
         <br />{" "}
-        <Text color={"white"} fontWeight={700} lineHeight={1.2} fontSize={40}>
+        <Text fontWeight={700} lineHeight={1.2} fontSize={40}>
           {" "}
-          XRAI: A prototypical system for diagnosing chest x-rays conditions
-          using Neural Networks
+          XRAI: A prototypical personal assistant for diagnosing lung conditoins
+          from x-rays conditions
         </Text>{" "}
-        <Text color={"whiteSmoke"} fontSize={25}>
+        <Text fontSize={25}>
           {" "}
           We locally preprocess and inference user uploaded chest xray images
           for a variety of diseases and provide a through breakdown of pathology
-          including stratified risk level, and class activation mapping.Try
-          uploading an image below to start.{" "}
+          including stratified risk level, and class activation mapping.
+          <br />
+          Try uploading an images to start. Or you can use one of the examples
+          below.
         </Text>{" "}
         <Stack direction={"row"}>
           {" "}
@@ -56,7 +59,6 @@ export default function Hero() {
           <Button
             bg={"transparent"}
             rounded={"full"}
-            color={"white"}
             _hover={{ bg: "blue.400" }}
           >
             Contact Us{" "}

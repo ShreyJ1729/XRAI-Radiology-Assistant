@@ -2,7 +2,7 @@ import * as tf from "@tensorflow/tfjs";
 import { jet } from "./colormaps";
 import ImageSSIM from "image-ssim";
 import Navbar from "./Navbar";
-import { HISTORY_DATA, NAV_ITEMS } from "./constants";
+import { EXAMPLES, HISTORY_DATA, NAV_ITEMS } from "./constants";
 import React, { useEffect, useState } from "react";
 import PercentageSlider from "./PercentageSlider";
 import Hero from "./Hero";
@@ -26,9 +26,14 @@ import {
   Select,
   Thead,
   Th,
+  Tag,
+  Stack,
+  TagLeftIcon,
+  TagLabel,
 } from "@chakra-ui/react";
 
 import axios from "axios";
+import { AddIcon } from "@chakra-ui/icons";
 
 function App() {
   const [loading, setLoading] = useState(false);
@@ -365,7 +370,7 @@ function App() {
     console.log("run_demo");
 
     var imgElement = new Image();
-    imgElement.src = "examples/f410057190635755d60158d1595d67_jumbo-1.jpeg";
+    imgElement.src = "examples/Misc3.png";
 
     imgElement.onload = () => {
       predict(imgElement, true, "");
@@ -475,10 +480,40 @@ function App() {
       >
         Browser not compatible.
       </iframe> */}
-      <Box borderWidth="1px" borderRadius="md" p={4}>
+
+      <Box pt={10} ml="7%" mr="5%" w="90%">
+        <Stack direction={["column", "row"]} spacing={4}>
+          {EXAMPLES.map((example, index) => (
+            <Tag
+              size="lg"
+              key={index}
+              variant="subtle"
+              colorScheme={example.color}
+              _hover={{ cursor: "pointer", opacity: 0.8 }}
+              onClick={() => {
+                // handleImageChangeFromExample(index);
+              }}
+            >
+              <TagLeftIcon boxSize="12px" as={AddIcon} />
+              <TagLabel>{example.title}</TagLabel>
+            </Tag>
+          ))}
+        </Stack>
+      </Box>
+      <br />
+
+      <Box borderWidth="1px" borderRadius="md" p={4} w="90%" m="auto" mb={10}>
         <FormControl>
-          <FormLabel>Upload an image</FormLabel>
-          <Input type="file" onChange={handleImageChange} id="files" />
+          <FormLabel fontSize={25}>Upload an image</FormLabel>
+          <Input
+            size="lg"
+            type="file"
+            onChange={handleImageChange}
+            id="files"
+            // my={2}
+            pt="8px"
+            // h="60px"
+          />
         </FormControl>
       </Box>
       <Box borderWidth="1px" borderRadius="md" p={4}>
@@ -594,31 +629,37 @@ function App() {
               <Textarea value={rep} rows={10} contentEditable={false} />
             </Box>
           </Box>
-          <Box ml="25%" w="full" my="-100px">
-            <Table>
-              <Thead>
-                <Tr>
-                  <Th>File Name</Th>
-                  <Th>Timestamp</Th>
-                  <Th>Process Time</Th>
-                  <Th>Likely</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {HISTORY_DATA.map((row) => (
-                  <Tr key={row.id}>
-                    <Td>{row.fileName}</Td>
-                    <Td>{row.timestamp}</Td>
-                    <Td>{row.processTime}</Td>
-                    <Td>{row.likely}</Td>
-                  </Tr>
-                ))}
-              </Tbody>
-            </Table>
-          </Box>
-          <br />
-          <br />
         </Box>
+        <Box ml="10%" w="80%" my="-100px">
+          <Text fontSize="2xl" fontWeight="bold" mb={4}>
+            Evaluation History
+          </Text>
+          <Table>
+            <Thead>
+              <Tr>
+                <Th fontSize={19}>File Name</Th>
+                <Th fontSize={19}>Timestamp</Th>
+                <Th fontSize={19}>Process Time</Th>
+                <Th fontSize={19}>Likely</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {HISTORY_DATA.map((row) => (
+                <Tr key={row.id}>
+                  <Td fontSize={17}>{row.fileName}</Td>
+                  <Td fontSize={17}>{row.timestamp}</Td>
+                  <Td fontSize={17}>{row.processTime} ms</Td>
+                  <Td fontSize={17}>{row.likely}</Td>
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+        </Box>
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
       </Box>
     </>
   );
