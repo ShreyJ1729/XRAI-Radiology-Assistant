@@ -629,7 +629,7 @@ function App() {
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer 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`,
+          Authorization: `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
         },
       }
     );
@@ -791,16 +791,16 @@ function App() {
                     {[
                       "Atelectasis",
                       "Consolidation",
-                      "Pulmonary Edema",
+                      "Edema",
                       "Emphysema",
                       "Fibrosis",
-                      "Pleural Effusion",
+                      "Effusion",
                       "Pleural Thickening",
                       "Cardiomegaly",
-                      "Mass (tumor)",
-                      "Pulmonary Hernia",
-                      "Pulmonary opacity",
-                      "Enlarged Cardiomedia",
+                      "Mass",
+                      "Hernia",
+                      "Lung Opacity",
+                      "Enlarged Cardiomedia.",
                     ].map((disease, idx) => (
                       <Tr key={disease} my={10} py={10}>
                         <Td my={0} py={4}>
