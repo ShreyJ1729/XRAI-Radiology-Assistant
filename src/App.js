@@ -658,6 +658,9 @@ function App() {
       <Spacer h={10} />
       <Spacer h={10} />
       <Spacer h={10} />
+      <Spacer h={10} />
+      <Spacer h={10} />
+      <Spacer h={10} />
 
       <Box pt={10} ml="15%" mr="15%" w="70%">
         <Wrap direction={["column", "row"]} spacing={4}>
