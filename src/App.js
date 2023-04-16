@@ -41,7 +41,9 @@ function App() {
   const [aechesternet, setAechesternet] = useState(null);
   const [chesternet, setChesternet] = useState(null);
   let thispred = {};
-  const [image, setImage] = useState(null);
+  const [start, setStart] = useState(0.0);
+  const [time, setTime] = useState(0.0);
+  const [end, setEnd] = useState(0.0);
   const [inp, setInp] = useState(null);
   const [rep, setRep] = useState("");
 
@@ -61,6 +63,10 @@ function App() {
   ]; // options for the Select component
   const [selectedOption, setSelectedOption] = useState(options[0]); // initial state is the first option
   const [chatloading, setChatloading] = useState(false);
+
+  useEffect(() => {
+    setTime(end - start);
+  }, [end]);
 
   const handleSelectChange = (event) => {
     setSelectedOption(event.target.value); // update state when a new option is selected
@@ -165,6 +171,8 @@ function App() {
 
   const predict = async (imgElement, isDemo, filename) => {
     setLoading(true);
+    setStart(Date.now());
+    console.log(Date.now());
     //   prepare input image
     console.log("In predict");
     console.log("here is the image element:", imgElement);
@@ -306,6 +314,7 @@ function App() {
 
       showProbResults(); //, logits, recScore)
       setLoading(false);
+      setEnd(Date.now());
 
       // thispred.find(".predviz .loading").hide();
       //   thispred.find(".loading").hide();
@@ -396,6 +405,16 @@ function App() {
     console.log(aechesternet, chesternet);
     if (aechesternet !== null && chesternet != null) run_demo();
   }, [aechesternet, chesternet]);
+
+  const handleImageChangeFromExample = (filename) => {
+    // set the file upload's event target to the example image
+    var imgElement = new Image();
+    imgElement.src = filename;
+
+    imgElement.onload = () => {
+      predict(imgElement, true, "");
+    };
+  };
 
   const handleImageChange = (event) => {
     // get first file
@@ -491,7 +510,7 @@ function App() {
               colorScheme={example.color}
               _hover={{ cursor: "pointer", opacity: 0.8 }}
               onClick={() => {
-                // handleImageChangeFromExample(index);
+                handleImageChangeFromExample("examples/" + example.filename);
               }}
             >
               <TagLeftIcon boxSize="12px" as={AddIcon} />
@@ -524,6 +543,13 @@ function App() {
               <Button>View Gradient Class Activation Map</Button>
               <Button>Reset</Button>
             </HStack>
+            <Text>
+              {loading ? (
+                <>Processing...</>
+              ) : (
+                <>Done in {Math.trunc(time)} milliseconds</>
+              )}
+            </Text>
             <Box className="viewbox">
               {loading && (
                 <Spinner

@@ -28,16 +28,28 @@ export const HISTORY_DATA = [
     likely: "Pleural Thickening",
   },
 ];
-
 export const EXAMPLES = [
-  { title: "COVID", color: "red" },
-  { title: "Cardiomegaly-Effusion-2", color: "teal" },
-  { title: "Cardiomegaly-Emphysema", color: "orange" },
-  { title: "Cardiomegaly", color: "purple" },
-  { title: "Hernia", color: "blue" },
-  { title: "Misc", color: "green" },
-  { title: "Misc2", color: "cyan" },
-  { title: "Misc3", color: "orange" },
-  { title: "Misc4", color: "red" },
-  { title: "No Finding", color: "yellow" },
+  { title: "COVID", color: "red", filename: "COVID.jpeg" },
+  {
+    title: "Cardiomegaly-Effusion-2",
+    color: "teal",
+    filename: "Cardiomegaly-Effusion-2.png",
+  },
+  {
+    title: "Cardiomegaly-Effusion",
+    color: "orange",
+    filename: "Cardiomegaly-Effusion.png",
+  },
+  {
+    title: "Cardiomegaly-Emphysema",
+    color: "purple",
+    filename: "Cardiomegaly-Emphysema.png",
+  },
+  { title: "Cardiomegaly", color: "blue", filename: "Cardiomegaly.png" },
+  { title: "Hernia", color: "green", filename: "Hernia.png" },
+  { title: "Misc", color: "cyan", filename: "Misc.png" },
+  { title: "Misc2", color: "orange", filename: "Misc2.png" },
+  { title: "Misc3", color: "red", filename: "Misc3.png" },
+  { title: "Misc4", color: "yellow", filename: "Misc4.jpeg" },
+  { title: "No Finding", color: "gray", filename: "No Finding.png" },
 ];
