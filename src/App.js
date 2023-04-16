@@ -457,7 +457,6 @@ function App() {
   }
 
   async function showProbResults(filename) {
-    console.log("Filename: " + filename);
     let classes = thispred.classes;
     
     const doc = new jsPDF();
