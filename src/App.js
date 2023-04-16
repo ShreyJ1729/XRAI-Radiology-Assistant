@@ -30,6 +30,8 @@ import {
   Stack,
   TagLeftIcon,
   TagLabel,
+  Wrap,
+  WrapItem,
 } from "@chakra-ui/react";
 
 import axios from "axios";
@@ -500,24 +502,25 @@ function App() {
         Browser not compatible.
       </iframe> */}
 
-      <Box pt={10} ml="7%" mr="5%" w="90%">
-        <Stack direction={["column", "row"]} spacing={4}>
+      <Box pt={10} ml="15%" mr="15%" w="70%">
+        <Wrap direction={["column", "row"]} spacing={4}>
           {EXAMPLES.map((example, index) => (
-            <Tag
-              size="lg"
-              key={index}
-              variant="subtle"
-              colorScheme={example.color}
-              _hover={{ cursor: "pointer", opacity: 0.8 }}
-              onClick={() => {
-                handleImageChangeFromExample("examples/" + example.filename);
-              }}
-            >
-              <TagLeftIcon boxSize="12px" as={AddIcon} />
-              <TagLabel>{example.title}</TagLabel>
-            </Tag>
+            <WrapItem key={index}>
+              <Tag
+                size="lg"
+                variant="subtle"
+                colorScheme={example.color}
+                _hover={{ cursor: "pointer", opacity: 0.8 }}
+                onClick={() => {
+                  handleImageChangeFromExample("examples/" + example.filename);
+                }}
+              >
+                <TagLeftIcon boxSize="12px" as={AddIcon} />
+                <TagLabel>{example.title}</TagLabel>
+              </Tag>
+            </WrapItem>
           ))}
-        </Stack>
+        </Wrap>
       </Box>
       <br />
 
