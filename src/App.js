@@ -519,7 +519,10 @@ function App() {
           (classes[i].probability * 100).toFixed(2) + "%",
         ]);
         tableString +=
-          classes[i].className + ": " + classes[i].probability * 100 + "%\n";
+          classes[i].className +
+          ": " +
+          (classes[i].probability * 100).toFixed(2) +
+          "%\n";
       }
     }
 
